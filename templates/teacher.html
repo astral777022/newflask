@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}
+	сторінка директора
+{% endblock %}
+
+<body>
+	{% block content %}
+	<header class="header" id="header">
+  	<div class="container">
+    	<div class="row d-flex align-items-center">
+      		<div class="col-3 col-md-4 col-lg-2">
+        		<a href="index.html">
+					<img class="img-fluid logo" src="{{url_for('static', filename='img/low.png')}}" alt="logo">
+				</a>
+      		</div>
+			<!-- Поле пошуку -->
+     		<div class="col-9 serh d-lg-flex col-md-8 col-lg-7 flex items-center">
+		  		<div class="search-wrapper">
+					<input type="text" placeholder="Пошук..." class="search-input" />
+					<button class="search-button">🔍</button>
+				</div>
+			</div>
+      		<div class="col-12 reg-in col-md-12 d-lg-flex col-lg-3 justify-content-end align-items-center menu-collapse">
+        	<!-- Меню -->
+        		<nav class="menu">
+          			<ul class="menu__list d-flex">
+            			<li class="menu__item">
+              				<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+            			</li>
+          			</ul>
+        		</nav>
+      		</div>
+    	</div>
+  	</div>
+	</header>
+
+<section class="cal-2">
+	<div class="container">
+		<div class="row">
+			<div class="center d-flex col-sm-12 col-md-6"> 
+				<div class="calendar-wrapper">
+				    <button id="btnPrev" type="button">Попередній</button>
+				    <button id="btnNext" type="button">Наступний</button>
+					 <div id="divCal"></div>
+					 <a href="#" class="podii-2">Всі подіі цього місяця</a>
+					 <a href="#" class="task-for-one">Створити особисте завдання</a>
+					 <a href="#" class="task-for-group">Створити групове завдання</a>
+					 <a href="#" class="assessment">Оцінювання</a>
+				</div>
+				<script type="text/javascript">
+					var Cal = function(divId) {
+					  //Зберігаємо ідентифікатор div
+					  this.divId = divId;
+					  //Дні тижня з понеділка
+					  this.DaysOfWeek = [
+					    'Пн',
+					    'Вт',
+					    'Ср',
+					    'Чт',
+					    'Пт',
+					    'Сб',
+					    'Нд'
+					  ];
+					  // Місяці починая з січня
+					  this.Months =['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+					  // Поточний місяц, рік
+					  var d = new Date();
+					  this.currMonth = d.getMonth();
+					  this.currYear = d.getFullYear();
+					  this.currDay = d.getDate();
+					};
+					// Перехід до наступного місяця
+					Cal.prototype.nextMonth = function() {
+					  if ( this.currMonth == 11 ) {
+					    this.currMonth = 0;
+					    this.currYear = this.currYear + 1;
+					  }
+					  else {
+					    this.currMonth = this.currMonth + 1;
+					  }
+					  this.showcurr();
+					};
+					// Перехід до попереднього місяця
+					Cal.prototype.previousMonth = function() {
+					  if ( this.currMonth == 0 ) {
+					    this.currMonth = 11;
+					    this.currYear = this.currYear - 1;
+					  }
+					  else {
+					    this.currMonth = this.currMonth - 1;
+					  }
+					  this.showcurr();
+					};
+					// Показати поточний місяць
+					Cal.prototype.showcurr = function() {
+					  this.showMonth(this.currYear, this.currMonth);
+					};
+					// Показати місяць (рік, місяць)
+					Cal.prototype.showMonth = function(y, m) {
+					  var d = new Date()
+					  // Перший день неділі в обраному місяці
+					  , firstDayOfMonth = new Date(y, m, 7).getDay()
+					  // Останній день в обраному місяці
+					  , lastDateOfMonth =  new Date(y, m+1, 0).getDate()
+					  // Останній день попереднього місяця
+					  , lastDayOfLastMonth = m == 0 ? new Date(y-1, 11, 0).getDate() : new Date(y, m, 0).getDate();
+					  var html = '<table>';
+					  // Запис обраного місяця і року
+					  html += '<thead><tr>';
+					  html += '<td colspan="7">' + this.Months[m] + ' ' + y + '</td>';
+					  html += '</tr></thead>';
+					  // Заголовок днів неділі
+					  html += '<tr class="days">';
+					  for(var i=0; i < this.DaysOfWeek.length;i++) {
+					    html += '<td>' + this.DaysOfWeek[i] + '</td>';
+					  }
+					  html += '</tr>';
+					  // Записуємо дні
+					  var i=1;
+					  do {
+					    var dow = new Date(y, m, i).getDay();
+					    // Почати новий рядок з понеділка
+					    if ( dow == 1 ) {
+					      html += '<tr>';
+					    }
+					    // Якщо перший день неділі не понеділок, то показати останні дні попереднього місяця
+					    else if ( i == 1 ) {
+					      html += '<tr>';
+					      var k = lastDayOfLastMonth - firstDayOfMonth+1;
+					      for(var j=0; j < firstDayOfMonth; j++) {
+					        html += '<td class="not-current">' + k + '</td>';
+					        k++;
+					      }
+					    }
+					    // Записуємо поточний день у цикл
+							var chk = new Date();
+							var chkY = chk.getFullYear();
+							var chkM = chk.getMonth();
+							if (chkY == this.currYear && chkM == this.currMonth && i == this.currDay) {
+							  html += `<td class="today"><a href="#" class="but-block but-block-${i}">${i}</a></td>`;
+							} else {
+							  html += `<td class="normal"><a href="#" class="but-block but-block-${i}">${i}</a></td>`;
+							}
+					    // Закриваємо рядок у неділю
+					    if ( dow == 0 ) {
+					      html += '</tr>';
+					    }
+					    // Якщо останній день місяця не неділя, то показуємо перші дні наступного місяця
+					    else if ( i == lastDateOfMonth ) {
+					      var k=1;
+					      for(dow; dow < 7; dow++) {
+					        html += '<td class="not-current">' + k + '</td>';
+					        k++;
+					      }
+					    }
+					    i++;
+					  }while(i <= lastDateOfMonth);
+					  // Кінець таблиці
+					  html += '</table>';
+					  // Записуємо HTML у div
+					  document.getElementById(this.divId).innerHTML = html;
+					};
+					// При завантажуванні вікна
+					window.onload = function() {
+					  // Почати календар
+					  var c = new Cal("divCal");			
+					  c.showcurr();
+					  // Прив'язуємо кнопки "Наступний" та "Попередній"
+					  getId('btnNext').onclick = function() {
+					    c.nextMonth();
+					  };
+					  getId('btnPrev').onclick = function() {
+					    c.previousMonth();
+					  };
+					}
+					// Отримати елемент по id
+					function getId(id) {
+					  return document.getElementById(id);
+					}
+				</script>
+         </div>
+         <div class="center col-sm-12 col-md-6"> 
+	      	<div class="students">
+	      		<div class="students-title">
+	      			<h2>Компьютерний клас</h2> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+	      			<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+	      		</div>
+					<ul class="stud-list">
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<li class="student-item"><p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації --></li>
+						<!-- Сюди додаються нові учні в якості нового пункту в тегі <li> -->
+					</ul>
+					<a href="#" class="remove-student">Видалити учня з бази</a>
+				</div>
+			</div>
+			<div class="col-12 d-flex justify-content-center">
+				<a href="#" class="general-event">Додати загальну подію</a>
+			</div>	
+		</div>
+	</div>
+</section>
+
+	<!-- Модальні вікна -->
+
+<div style="display: none;"> <!--   Вікно кліка на дні у календарі   -->
+    <div class="box-modal" id="exampleModal-3">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<div class="date">
+        			<p>Сюди повинна потрапляти поточна дата</p>
+        		</div>
+        		<div class="desc-date">
+        			<p>Події відсутні</p>
+        		</div> 
+        		<a href="#" class="desc-date-in">Додати подію</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Вікно усіх загальних подій в кабінеті вчителя   -->
+    <div class="box-modal" id="exampleModal-5">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+       	<div class="date">
+     			<p>Сюди повиннен потрапляти поточний місяць</p>
+     		</div>
+     		<ul class="list-event">
+     			<li><p>1</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>2</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>3</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>4</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>5</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>6</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>7</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>8</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>9</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>10</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>11</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>12</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>13</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>14</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>15</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>16</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>17</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>18</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>19</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>20</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>21</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>22</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>23</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>24</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>25</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>26</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>27</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li class="activ-event-day"><p>28</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>29</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>30</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     			<li><p>31</p>
+     				<p>Сюди потрапляють всі загальні події</p>
+     			</li>
+     		</ul>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Особисте завдання   -->
+    <div class="box-modal" id="exampleModal-6">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<textarea class="desk-task" name="desk-task" placeholder="Опишіть завдання"></textarea>
+        		<select name="class" class="class">
+	         	  <option value="0">Оберіть учня</option>
+					  <option value="1">Учень 1</option>
+					  <option value="2">Учень 2</option>
+					  <option value="3">Учень 3</option>
+					  <option value="4">Учень 4</option>
+					  <option value="5">Учень 5</option>
+					  <option value="6">Учень 6</option>
+				</select>
+				<div>
+					<p class="example_task-date">Строк виконання до: <br>
+						<span><input id="namb" class="namb-input" type="text" name="namber" placeholder="Забронюйте дату віконання"></span></p>
+				</div>
+				<a href="#" class="task-gr">Відправити завдання</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Групове завдання   -->
+    <div class="box-modal" id="exampleModal-7">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<textarea class="desk-task" name="desk-task" placeholder="Опишіть завдання"></textarea>
+        		<h3 class="st-task-gr">Виберіть учнів:</h3>
+        		<ul class="stud-list-2 d-flex">
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+						<li class="student-item d-flex">
+							<input type="checkbox">
+							<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+						</li>
+					</ul>
+				<div>
+					<p class="example_task-date">Строк виконання до: <br>
+						<span><input id="namb" class="namb-input" type="text" name="namber" placeholder="Забронюйте дату віконання"></span>
+					</p>
+					<a href="#" class="task-gr">Відправити завдання</a>
+				</div>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Оцінювання   -->
+    <div class="box-modal" id="exampleModal-8">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<textarea class="desk-task" name="desk-task" placeholder="Коментар вчителя"></textarea>
+        		<span class="warning">
+        			* Якщо залишити поле пустим, <br>
+   						то оцінка буде враховуваьись <br>
+   						як за гуртове завдання
+   			</span>	
+        		<select name="class" class="class-2">
+	         	  <option value="0">Оберіть учня</option>
+					  <option value="1">Учень 1</option>
+					  <option value="2">Учень 2</option>
+					  <option value="3">Учень 3</option>
+					  <option value="4">Учень 4</option>
+					  <option value="5">Учень 5</option>
+					  <option value="6">Учень 6</option>
+				</select>
+				<div>
+					<p class="d-flex justify-content-center grade-block">
+						Поставити оцінку: <input type="namber" class="grade">
+					</p>
+				</div>
+				<a href="#" class="task-grade">Оцінити</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Видалення учня з бази   -->
+    <div class="box-modal" id="exampleModal-9">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <h3>Оберіть учня/учнів із списку:</h3>
+     			<ul class="stud-list-2 d-flex">
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+					<li class="student-item d-flex">
+						<input type="checkbox">
+						<p>Ім'я Призвіще (<span>Логін</span>)</p> <!-- Сюди повинні потрапляти дані з форми реестрації -->
+					</li>
+				</ul>
+				<a href="#" class="delete">Видалити вибраних</a>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Додати загальну подію   -->
+    <div class="box-modal" id="exampleModal-10">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<h3>Сюди потрапляє той день на якому був клік</h3>
+        		<textarea class="add-p-bl" name="add-p-bl" placeholder="Описуємо подію"></textarea>
+        		<a href="#" class="add-p">Додати подію</a>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;"> <!--   Додавання окремої події при кліку на вільну подію у календарі   -->
+    <div class="box-modal" id="exampleModal-11">
+        <div class="box-modal_close arcticmodal-close"><img src="img/close.png" class="close"></div>
+        <div>
+        		<textarea class="add-p-bl" name="add-p-bl" placeholder="Описуємо подію"></textarea>
+        		<a href="#" class="add-p">Додати подію</a>
+        </div>
+    </div>
+</div>
+
+	<!-- JQuery -->
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<!-- slick -->
+	<script type="text/javascript" src="js/slick.min.js"></script>
+	<!-- Parallax -->
+	<script type="text/javascript" src="js/parallax-bg.js"></script>
+	<!-- Pop-up window js -->
+	<script src="js/jquery.arcticmodal-0.3.min.js"></script>
+	<!-- Validate -->
+	<script type="text/javascript" src="js/jquery.validate.js"></script>
+	<!-- Main JS -->
+	<script src="js/main.js"></script>
+	{% endblock %}
+</body>
+</html>
