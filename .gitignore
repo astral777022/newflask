@@ -1,9 +1,0 @@
-# virtual env
-.venv
-
-# pycache
-__pycache__
-
-# direnv (for .envrc)
-.direnv
-
